@@ -1,8 +1,8 @@
 # Αρχείο: teachers.py
 import json
-from teacher import Teacher
+from models.teacher import Teacher
 
-TEACHERS_FILE = "teachers_data.json"
+TEACHERS_FILE = "data/teachers_data.json"
 
 class Teachers:
     def __init__(self):

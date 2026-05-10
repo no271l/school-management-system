@@ -1,8 +1,8 @@
 # Αρχείο: pupils.py
 import json
-from pupil import Pupil
+from models.pupil import Pupil
 
-PUPILS_FILE = "pupils_data.json"
+PUPILS_FILE = "data/pupils_data.json"
 
 class Pupils:
     def __init__(self):

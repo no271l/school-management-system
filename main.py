@@ -1,7 +1,7 @@
 # Αρχείο: main.py
-from pupils import Pupils
-from teachers import Teachers
-from lessons import Lessons
+from managers.pupils import Pupils
+from managers.teachers import Teachers
+from managers.lessons import Lessons
 
 def main():
     # Οι τρεις διαχειριστές της βάσης μας

@@ -1,7 +1,7 @@
 import json
-from lesson import Lesson
+from models.lesson import Lesson
 
-LESSONS_FILE = "lessons.json"
+LESSONS_FILE = "data/lessons.json"
 
 class Lessons:
     def __init__(self):

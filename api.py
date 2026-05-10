@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from pupils import Pupils
-from teachers import Teachers
-from lessons import Lessons
+from managers.pupils import Pupils
+from managers.teachers import Teachers
+from managers.lessons import Lessons
 
 # Create FastAPI app
 app = FastAPI(title="School Management API", description="API for managing school data")
