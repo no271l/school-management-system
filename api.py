@@ -27,4 +27,3 @@ def get_all_teachers():
 @app.get("/lessons")
 def get_all_lessons():
     return [l.to_dict() for l in lessons_manager.lessons_list]
-
