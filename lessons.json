@@ -1,0 +1,10 @@
+[
+    {
+        "lesson_id": 1,
+        "name": "Γλώσσα",
+        "pupil_ids": [
+            100
+        ],
+        "teacher_ids": []
+    }
+]
