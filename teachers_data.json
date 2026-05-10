@@ -1,7 +1,17 @@
 [
     {
-        "first_name": "Αντω",
-        "last_name": "Αντω",
+        "first_name": "John",
+        "last_name": "Smith",
         "teacher_id": 1
+    },
+    {
+        "first_name": "Helen",
+        "last_name": "Davis",
+        "teacher_id": 2
+    },
+    {
+        "first_name": "Robert",
+        "last_name": "Miller",
+        "teacher_id": 3
     }
 ]

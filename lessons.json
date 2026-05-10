@@ -1,10 +1,37 @@
 [
     {
         "lesson_id": 1,
-        "name": "Γλώσσα",
+        "name": "Mathematics",
         "pupil_ids": [
-            100
+            1000,
+            1001
         ],
-        "teacher_ids": []
+        "teacher_ids": [
+            1
+        ]
+    },
+    {
+        "lesson_id": 2,
+        "name": "History",
+        "pupil_ids": [
+            1001,
+            1002
+        ],
+        "teacher_ids": [
+            2
+        ]
+    },
+    {
+        "lesson_id": 3,
+        "name": "Computer Science",
+        "pupil_ids": [
+            1000,
+            1001,
+            1002
+        ],
+        "teacher_ids": [
+            1,
+            3
+        ]
     }
 ]
