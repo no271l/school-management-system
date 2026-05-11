@@ -44,40 +44,19 @@ class Pupils:
                 return p
         return None
 
-    def create_pupil(self):
-        print("\n--- Δημιουργία Εγγραφής Μαθητή ---")
-        first_name = input("Όνομα: ").strip()
-        last_name = input("Επώνυμο: ").strip()
-        fathers_name = input("Όνομα Πατέρα: ").strip()
+    def create_pupil(self, first_name: str, last_name: str, fathers_name: str, age: int, pupil_class: int, id_card: str = None):
+        """Creates a new pupil directly from given parameters, without terminal inputs."""
 
         for p in self.pupils_list:
-            if (p.first_name.lower() == first_name.lower() and 
-                p.last_name.lower() == last_name.lower() and 
-                p.fathers_name.lower() == fathers_name.lower()):
-                print("\nΠΡΟΣΟΧΗ: Βρέθηκε ήδη μαθητής με αυτά τα στοιχεία:")
-                print(p) 
-                proceed = input("Είναι συνωνυμία; Θέλετε να συνεχίσετε; (ναι/όχι): ").strip().lower()
-                if proceed != "ναι":
-                    print("Η εγγραφή ακυρώθηκε.")
-                    return False
-
-        try:
-            age = int(input("Ηλικία: "))
-            pupil_class = int(input("Τάξη (1-6): "))
-        except ValueError:
-            print("Λάθος εισαγωγή. Η ηλικία και η τάξη πρέπει να είναι αριθμοί. Ακύρωση.")
-            return False
-
-        id_card = input("Αρ. Ταυτότητας (πάτα Enter αν δεν υπάρχει): ").strip()
-        id_card = id_card if id_card else None
-
-        new_pupil = Pupil(first_name, last_name, fathers_name, age, pupil_class, id_card, self.next_id())
-        self.pupils_list.append(new_pupil)
-        self.save_pupils_data()
-        
-        print("\nΕπιτυχία! Η εγγραφή δημιουργήθηκε. Τα στοιχεία:")
-        print(new_pupil)
-        return True
+            if p.first_name.lower() == first_name.lower() and \
+                p.last_name.lower() == last_name.lower() and \
+                p.fathers_name.lower() == fathers_name.lower():
+                return None
+            
+            new_pupil = Pupil(first_name, last_name, fathers_name, age, pupil_class, id_card, self.next_id())
+            self.pupils_list.append(new_pupil)
+            self.save_pupils_data()
+            return new_pupil
 
     def update_pupil(self):
         print("\n--- Ενημέρωση Εγγραφής Μαθητή ---")

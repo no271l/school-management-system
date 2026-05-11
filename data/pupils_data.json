@@ -25,5 +25,14 @@
         "class": 2,
         "id_card": null,
         "pupil_id": 1002
+    },
+    {
+        "first_name": "Noel",
+        "last_name": "Bajraktari",
+        "fathers_name": "Edmond",
+        "age": 23,
+        "class": 5,
+        "id_card": "string",
+        "pupil_id": 1003
     }
 ]

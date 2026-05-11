@@ -43,20 +43,16 @@ class Lessons:
                 return l
         return None
     
-    def create_lesson(self):
-        print("\n--- Δημιουργία Νέου Μαθήματος ---")
-        name = input("Όνομα Μαθήματος: ").strip()
-        
+    def create_lesson(self, name: str):
+        """Creates a new lesson directly from given name."""
         for l in self.lessons_list:
             if l.name.lower() == name.lower():
-                print("Σφάλμα: Το μάθημα υπάρχει ήδη.")
-                return False
+                return None  # Return None if it's a duplicate
                 
         new_lesson = Lesson(name=name, lesson_id=self.next_id())
         self.lessons_list.append(new_lesson)
         self.save_lessons_data()
-        print(f"Επιτυχία! Το μάθημα δημιουργήθηκε με ID: {new_lesson.lesson_id}")
-        return True
+        return new_lesson
     
     def update_lesson(self):
         print("\n--- Ενημέρωση Μαθήματος (Προσθήκη/Αφαίρεση Μελών) ---")
