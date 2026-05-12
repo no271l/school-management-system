@@ -54,88 +54,26 @@ class Lessons:
         self.save_lessons_data()
         return new_lesson
     
-    def update_lesson(self):
-        print("\n--- Ενημέρωση Μαθήματος (Προσθήκη/Αφαίρεση Μελών) ---")
-        try:
-            l_id = int(input("Δώστε το ID του μαθήματος: "))
-            target = self.search_lesson_by_id(l_id)
-            
-            if not target:
-                print("Σφάλμα: Δεν βρέθηκε μάθημα με αυτό το ID.")
-                return False
+    def update_lesson(self, lesson_id: int, name: str = None):
+        target = self.search_lesson_by_id(lesson_id)
 
-            print(f"\nΕπιλεγμένο Μάθημα: {target.name}")
-            print(f"Τρέχοντα IDs Μαθητών: {target.pupil_ids}")
-            print(f"Τρέχοντα IDs Καθηγητών: {target.teacher_ids}")
-            print("\nΕπιλογές:")
-            print("1. Αλλαγή ονόματος μαθήματος")
-            print("2. Προσθήκη Μαθητή (μέσω ID)")
-            print("3. Αφαίρεση Μαθητή (μέσω ID)")
-            print("4. Προσθήκη Καθηγητή (μέσω ID)")
-            print("5. Αφαίρεση Καθηγητή (μέσω ID)")
-            print("6. Ακύρωση")
-            
-            choice = input("Επιλογή (1-6): ").strip()
+        if not target:
+            return None
+        
+        if name is not None:
+            target.name = name
+        
+        self.save_lessons_data()
+        return target
 
-            if choice == "1":
-                target.name = input("Νέο Όνομα: ").strip()
-                print("Το όνομα ενημερώθηκε.")
-            elif choice == "2":
-                p_id = int(input("Δώστε το ID του Μαθητή για προσθήκη: "))
-                if p_id not in target.pupil_ids:
-                    target.pupil_ids.append(p_id)
-                    print("Ο μαθητής προστέθηκε στο μάθημα.")
-                else:
-                    print("Σφάλμα: Ο μαθητής είναι ήδη εγγεγραμμένος σε αυτό το μάθημα.")
-            elif choice == "3":
-                p_id = int(input("Δώστε το ID του Μαθητή για αφαίρεση: "))
-                if p_id in target.pupil_ids:
-                    target.pupil_ids.remove(p_id)
-                    print("Ο μαθητής αφαιρέθηκε από το μάθημα.")
-                else:
-                    print("Σφάλμα: Ο μαθητής δεν βρέθηκε στη λίστα του μαθήματος.")
-            elif choice == "4":
-                t_id = int(input("Δώστε το ID του Καθηγητή για προσθήκη: "))
-                if t_id not in target.teacher_ids:
-                    target.teacher_ids.append(t_id)
-                    print("Ο καθηγητής προστέθηκε στο μάθημα.")
-                else:
-                    print("Σφάλμα: Ο καθηγητής διδάσκει ήδη το μάθημα.")
-            elif choice == "5":
-                t_id = int(input("Δώστε το ID του Καθηγητή για αφαίρεση: "))
-                if t_id in target.teacher_ids:
-                    target.teacher_ids.remove(t_id)
-                    print("Ο καθηγητής αφαιρέθηκε από το μάθημα.")
-                else:
-                    print("Σφάλμα: Ο καθηγητής δεν βρέθηκε στη λίστα του μαθήματος.")
-            elif choice == "6":
-                return False
-            else:
-                print("Μη έγκυρη επιλογή.")
-                return False
-
-            self.save_lessons_data()
-            return True
-
-        except ValueError:
-            print("Σφάλμα: Πρέπει να δώσετε ακέραιο αριθμό για το ID.")
-            return False
-
-    def delete_lesson(self):
-        print("\n--- Διαγραφή Μαθήματος ---")
-        try:
-            l_id = int(input("Δώστε το ID του μαθήματος προς διαγραφή: "))
-            for i, l in enumerate(self.lessons_list):
-                if l.lesson_id == l_id:
-                    del self.lessons_list[i]
-                    self.save_lessons_data()
-                    print(f"Επιτυχία! Το μάθημα με ID {l_id} διαγράφηκε.")
-                    return True
-            print("Σφάλμα: Δεν βρέθηκε μάθημα με αυτό το ID.")
-            return False
-        except ValueError:
-             print("Σφάλμα: Το ID πρέπει να είναι ακέραιος αριθμός.")
-             return False
+    def delete_lesson(self, lesson_id: int):
+        """Deletes a lesson by ID."""
+        for i, l in enumerate(self.lessons_list):
+            if l.lesson_id == lesson_id:
+                del self.lessons_list[i]
+                self.save_lessons_data()
+                return True
+        return False
         
     def remove_pupil_from_all(self, p_id):
         for l in self.lessons_list:

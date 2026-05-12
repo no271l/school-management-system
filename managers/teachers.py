@@ -46,57 +46,30 @@ class Teachers:
         return new_teacher
 
     def read_teacher(self, teacher_id):
-        # Επιστρέφει το αντικείμενο Teacher με βάση το ID[cite: 7]
         for t in self.teachers_list:
             if t.teacher_id == teacher_id:
                 return t
         return None
 
-    def update_teacher(self, teacher_id):
-        # Ενημερώνει τα στοιχεία του καθηγητή ρωτώντας τον χρήστη[cite: 7]
-        target_teacher = self.read_teacher(teacher_id)
-        if not target_teacher:
-            print("Δεν βρέθηκε καθηγητής με αυτό το ID.")
-            return False
+    def update_teacher(self, teacher_id, first_name=None, last_name=None):
+        # Update an existing teacher.
+        target = self.read_teacher(teacher_id)
+        if not target:
+            return None
 
-        print("\nΒρέθηκε ο καθηγητής:")
-        target_teacher.print_teacher()
-        print("\nΤι θέλετε να ενημερώσετε;")
-        print("1. Όνομα")
-        print("2. Επώνυμο")
-        
-        choice = input("Επιλογή (1-2): ").strip()
-        
-        if choice == "1":
-            new_name = input("Δώστε νέο όνομα: ").strip()
-            if new_name:
-                target_teacher.first_name = new_name
-                self.save_teachers_data()
-                print("Ενημερώθηκε επιτυχώς!")
-                return True
-        elif choice == "2":
-            new_last_name = input("Δώστε νέο επώνυμο: ").strip()
-            if new_last_name:
-                target_teacher.last_name = new_last_name
-                self.save_teachers_data()
-                print("Ενημερώθηκε επιτυχώς!")
-                return True
-        else:
-            print("Λάθος επιλογή.")
-        return False
+        if first_name is not None:
+            target.first_name = first_name
+        if last_name is not None:
+            target.last_name = last_name
 
-    def delete_teacher(self):
-        # Ζητάει το ID και διαγράφει τον καθηγητή[cite: 7]
-        try:
-            t_id = int(input("Δώστε το ID του καθηγητή προς διαγραφή: "))
-            for i, t in enumerate(self.teachers_list):
-                if t.teacher_id == t_id:
-                    del self.teachers_list[i]
-                    self.save_teachers_data()
-                    print(f"Ο καθηγητής με ID {t_id} διαγράφηκε επιτυχώς.")
-                    return t_id
-            print("Δεν βρέθηκε καθηγητής με αυτό το ID.")
-            return False
-        except ValueError:
-             print("Σφάλμα: Το ID πρέπει να είναι ακέραιος αριθμός.")
-             return False
+        self.save_teachers_data()
+        return True
+
+    def delete_teacher(self, teacher_id: int):
+        """Deletes a teacher by ID and returns the deleted ID if successful."""
+        for i, t in enumerate(self.teachers_list):
+            if t.teacher_id == teacher_id:
+                del self.teachers_list[i]
+                self.save_teachers_data()
+                return teacher_id
+        return None

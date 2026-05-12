@@ -1,5 +1,6 @@
 # Αρχείο: pupils.py
 import json
+from models import pupil
 from models.pupil import Pupil
 
 PUPILS_FILE = "data/pupils_data.json"
@@ -58,73 +59,37 @@ class Pupils:
             self.save_pupils_data()
             return new_pupil
 
-    def update_pupil(self):
-        print("\n--- Ενημέρωση Εγγραφής Μαθητή ---")
-        try:
-            p_id = int(input("Δώστε το ID του μαθητή προς ενημέρωση: "))
-            target = self.search_pupil_by_id(p_id)
-            
-            if not target:
-                print("Σφάλμα: Δεν βρέθηκε μαθητής με αυτό το ID.")
-                return False
-
-            print("\nΒρέθηκε ο μαθητής:")
-            print(target)
-            print("Ποιο πεδίο θέλετε να διορθώσετε;")
-            print("1. Όνομα\n2. Επώνυμο\n3. Πατρώνυμο\n4. Ηλικία\n5. Τάξη\n6. Αρ. Ταυτότητας\n7. Ακύρωση")
-            
-            field_choice = input("Επιλέξτε πεδίο (1-7): ").strip()
-            
-            if field_choice == "1":
-                target.first_name = input("Νέο Όνομα: ").strip()
-            elif field_choice == "2":
-                target.last_name = input("Νέο Επώνυμο: ").strip()
-            elif field_choice == "3":
-                target.fathers_name = input("Νέο Πατρώνυμο: ").strip()
-            elif field_choice == "4":
-                try:
-                    target.age = int(input("Νέα Ηλικία: "))
-                except ValueError:
-                    print("Σφάλμα: Λάθος μορφή ηλικίας.")
-                    return False
-            elif field_choice == "5":
-                try:
-                    target.pupil_class = int(input("Νέα Τάξη: "))
-                except ValueError:
-                    print("Σφάλμα: Λάθος μορφή τάξης.")
-                    return False
-            elif field_choice == "6":
-                new_id = input("Νέος Αρ. Ταυτότητας (Enter για κενό): ").strip()
-                target.id_card = new_id if new_id else None
-            elif field_choice == "7":
-                return False
-            else:
-                print("Σφάλμα: Μη έγκυρη επιλογή.")
-                return False
-                
-            self.save_pupils_data()
-            print("Η ενημέρωση ολοκληρώθηκε επιτυχώς!")
-            return True
-            
-        except ValueError:
-            print("Σφάλμα: Το ID πρέπει να είναι αριθμός.")
-            return False
-
-    def delete_pupil(self):
-        print("\n--- Διαγραφή Μαθητή ---")
-        try:
-            p_id = int(input("Δώστε το ID του μαθητή προς διαγραφή: "))
-            for i, p in enumerate(self.pupils_list):
-                if p.pupil_id == p_id:
-                    del self.pupils_list[i]
-                    self.save_pupils_data()
-                    print(f"Επιτυχία! Ο μαθητής με ID {p_id} διαγράφηκε.")
-                    return p_id
+    def update_pupil(self, pupil_id:int, first_name: str = None, last_name: str = None, fathers_name: str = None, age: int = None, pupil_class: int = None, id_card: str = None):
+        target = self.search_pupil_by_id(pupil_id)
+        if not target:
             print("Σφάλμα: Δεν βρέθηκε μαθητής με αυτό το ID.")
             return False
-        except ValueError:
-             print("Σφάλμα: Το ID πρέπει να είναι ακέραιος αριθμός.")
-             return False
+        
+        if first_name is not None:
+            target.first_name = first_name
+        if last_name is not None:
+            target.last_name = last_name
+        if fathers_name is not None:
+            target.fathers_name = fathers_name
+        if age is not None:
+            target.age = age
+        if pupil_class is not None:
+            target.pupil_class = pupil_class
+        if id_card is not None:
+            target.id_card = id_card
+        
+        self.save_pupils_data()
+        print(f"Επιτυχία! Ο μαθητής με ID {pupil_id} ενημερώθηκε.")
+        return True
+
+    def delete_pupil(self, pupil_id: int):
+        """Deletes a pupil by ID and returns the deleted ID if successful."""
+        for i, p in enumerate(self.pupils_list):
+            if p.pupil_id == pupil_id:
+                del self.pupils_list[i]
+                self.save_pupils_data()
+                return pupil_id
+        return None  # Return None if not found
 
     def print_pupils_names(self):
         if not self.pupils_list:

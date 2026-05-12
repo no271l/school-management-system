@@ -68,3 +68,86 @@ def create_new_lesson(lesson_data: schemas.LessonCreate):
         raise HTTPException(status_code=400, detail="Lesson already exists.")
         
     return {"message": "Lesson created successfully!", "lesson": new_lesson.to_dict()}
+
+# --- PUT ENDPOINTS ---
+
+@app.put("/pupils/{pupil_id}")
+def update_existing_pupil(pupil_id: int, pupil_data: schemas.PupilUpdate):
+    update_pupil = pupils_manager.update_pupil(
+        pupil_id = pupil_id,
+        first_name = pupil_data.first_name,
+        last_name = pupil_data.last_name,
+        fathers_name = pupil_data.fathers_name,
+        age = pupil_data.age,
+        pupil_class = pupil_data.pupil_class,
+        id_card = pupil_data.id_card
+    )
+
+    if not update_pupil:
+        raise HTTPException(status_code=404, detail="Pupil not found.")
+    
+    return {"message": "Pupil updated successfully!"}
+
+@app.put("/teachers/{teacher_id}")
+def update_existing_teacher(teacher_id: int, teacher_data: schemas.TeacherUpdate):
+    update_teacher = teachers_manager.update_teacher(
+        teacher_id = teacher_id,
+        first_name = teacher_data.first_name,
+        last_name = teacher_data.last_name
+    )
+
+    if not update_teacher:
+        raise HTTPException(status_code=404, detail="Teacher not found.")
+
+    return {"message": "Teacher updated successfully!", "teacher": updated_teacher.to_dict()}
+
+@app.put("/lessons/{lesson_id}")
+def update_existing_lesson(lesson_id: int, lesson_data: schemas.LessonUpdate):
+    # Pass the data to the manager
+    updated_lesson = lessons_manager.update_lesson(
+        lesson_id=lesson_id,
+        name=lesson_data.name
+    )
+    
+    if not updated_lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found.")
+        
+    return {"message": "Lesson updated successfully!", "lesson": updated_lesson.to_dict()}
+
+# --- DELETE ENDPOINTS ---
+
+@app.delete("/pupils/{pupil_id}")
+def delete_existing_pupil(pupil_id: int):
+    # 1. Try to delete the pupil
+    deleted_id = pupils_manager.delete_pupil(pupil_id)
+    
+    if not deleted_id:
+        raise HTTPException(status_code=404, detail="Pupil not found.")
+        
+    # 2. Referential Integrity: Remove this pupil's ID from all lessons
+    lessons_manager.remove_pupil_from_all(deleted_id)
+    
+    return {"message": f"Pupil with ID {deleted_id} was successfully deleted from the school and all lessons."}
+
+
+@app.delete("/teachers/{teacher_id}")
+def delete_existing_teacher(teacher_id: int):
+    deleted_id = teachers_manager.delete_teacher(teacher_id)
+    
+    if not deleted_id:
+        raise HTTPException(status_code=404, detail="Teacher not found.")
+        
+    # Referential Integrity: Remove this teacher's ID from all lessons
+    lessons_manager.remove_teacher_from_all(deleted_id)
+    
+    return {"message": f"Teacher with ID {deleted_id} was successfully deleted from the school and all lessons."}
+
+
+@app.delete("/lessons/{lesson_id}")
+def delete_existing_lesson(lesson_id: int):
+    success = lessons_manager.delete_lesson(lesson_id)
+    
+    if not success:
+        raise HTTPException(status_code=404, detail="Lesson not found.")
+        
+    return {"message": f"Lesson with ID {lesson_id} was successfully deleted."}
