@@ -99,7 +99,7 @@ def update_existing_teacher(teacher_id: int, teacher_data: schemas.TeacherUpdate
     if not update_teacher:
         raise HTTPException(status_code=404, detail="Teacher not found.")
 
-    return {"message": "Teacher updated successfully!", "teacher": updated_teacher.to_dict()}
+    return {"message": "Teacher updated successfully!", "teacher": update_teacher.to_dict()}
 
 @app.put("/lessons/{lesson_id}")
 def update_existing_lesson(lesson_id: int, lesson_data: schemas.LessonUpdate):
