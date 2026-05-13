@@ -1,88 +1,70 @@
-import json
+# File: managers/lessons.py
 from models.lesson import Lesson
-
-LESSONS_FILE = "data/lessons.json"
+from database import lessons_collection
 
 class Lessons:
     def __init__(self):
-        self.lessons_list = []
-        self._load_data()
+        pass
 
-    def _load_data(self):
-        try:
-            with open(LESSONS_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                for item in data:
-                    new_lesson = Lesson()
-                    new_lesson.from_dict(item)
-                    self.lessons_list.append(new_lesson)
-        except (FileNotFoundError, json.JSONDecodeError):
-            self.lessons_list = []
-
-    def save_lessons_data(self):
-        data_to_save = [lesson.to_dict() for lesson in self.lessons_list]
-        with open(LESSONS_FILE, "w", encoding="utf-8") as f:
-            json.dump(data_to_save, f, ensure_ascii=False, indent=4)
-
-    def __str__(self):
-        if not self.lessons_list:
-            return "Δεν υπάρχουν εγγεγραμμένα μαθήματα."
-        result = "\n--- Λίστα Μαθημάτων ---\n"
-        for l in self.lessons_list:
-            result += str(l) + "\n"
-        return result
-    
     def next_id(self):
-        if not self.lessons_list:
-            return 1
-        return max(l.lesson_id for l in self.lessons_list) + 1
+        """Finds the highest lesson_id in the database and adds 1."""
+        last_lesson = lessons_collection.find_one(sort=[("lesson_id", -1)])
+        if last_lesson and "lesson_id" in last_lesson:
+            return last_lesson["lesson_id"] + 1
+        return 1
 
-    def search_lesson_by_id(self, lesson_id):
-        for l in self.lessons_list:
-            if l.lesson_id == lesson_id:
-                return l
-        return None
-    
     def create_lesson(self, name: str):
-        """Creates a new lesson directly from given name."""
-        for l in self.lessons_list:
-            if l.name.lower() == name.lower():
-                return None  # Return None if it's a duplicate
-                
-        new_lesson = Lesson(name=name, lesson_id=self.next_id())
-        self.lessons_list.append(new_lesson)
-        self.save_lessons_data()
-        return new_lesson
-    
-    def update_lesson(self, lesson_id: int, name: str = None):
-        target = self.search_lesson_by_id(lesson_id)
-
-        if not target:
+        """Creates a new lesson directly in MongoDB."""
+        exists = lessons_collection.find_one({"name": name})
+        
+        if exists:
             return None
+            
+        new_lesson = Lesson(name=name, lesson_id=self.next_id())
         
-        if name is not None:
-            target.name = name
+        lesson_dict = new_lesson.to_dict()
+        lessons_collection.insert_one(lesson_dict)
         
-        self.save_lessons_data()
-        return target
+        return new_lesson
+
+    def get_all_lessons(self):
+        """Retrieves all lessons from the database."""
+        return list(lessons_collection.find({}, {"_id": 0}))
+
+    def update_lesson(self, lesson_id: int, name: str = None):
+        """Updates an existing lesson."""
+        if name is None:
+            return None
+
+        result = lessons_collection.update_one(
+            {"lesson_id": lesson_id}, 
+            {"$set": {"name": name}}
+        )
+
+        if result.matched_count == 0:
+            return None
+            
+        return lessons_collection.find_one({"lesson_id": lesson_id}, {"_id": 0})
 
     def delete_lesson(self, lesson_id: int):
-        """Deletes a lesson by ID."""
-        for i, l in enumerate(self.lessons_list):
-            if l.lesson_id == lesson_id:
-                del self.lessons_list[i]
-                self.save_lessons_data()
-                return True
-        return False
-        
-    def remove_pupil_from_all(self, p_id):
-        for l in self.lessons_list:
-            if p_id in l.pupil_ids:
-                l.pupil_ids.remove(p_id)
-        self.save_lessons_data()
+        """Deletes a lesson from the database."""
+        result = lessons_collection.delete_one({"lesson_id": lesson_id})
+        return result.deleted_count > 0
 
-    def remove_teacher_from_all(self, t_id):
-        for l in self.lessons_list:
-            if t_id in l.teacher_ids:
-                l.teacher_ids.remove(t_id)
-        self.save_lessons_data()
+    # --- Referential Integrity Methods ---
+    
+    def remove_pupil_from_all(self, p_id: int):
+        """Removes a pupil's ID from the pupil_ids list of ALL lessons."""
+        # The {} means "match all documents". 
+        # $pull removes the specified value from the array.
+        lessons_collection.update_many(
+            {}, 
+            {"$pull": {"pupil_ids": p_id}}
+        )
+
+    def remove_teacher_from_all(self, t_id: int):
+        """Removes a teacher's ID from the teacher_ids list of ALL lessons."""
+        lessons_collection.update_many(
+            {}, 
+            {"$pull": {"teacher_ids": t_id}}
+        )

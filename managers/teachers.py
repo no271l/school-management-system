@@ -1,75 +1,66 @@
-# Αρχείο: teachers.py
-import json
+# File: managers/teachers.py
 from models.teacher import Teacher
-
-TEACHERS_FILE = "data/teachers_data.json"
+from database import teachers_collection
 
 class Teachers:
     def __init__(self):
-        # Η λίστα που θα κρατάει αντικείμενα τύπου Teacher[cite: 7]
-        self.teachers_list = []
-        self._load_data()
-
-    def _load_data(self):
-        # Διαβάζει από το JSON και γεμίζει τη λίστα με αντικείμενα Teacher[cite: 7]
-        try:
-            with open(TEACHERS_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                for item in data:
-                    new_teacher = Teacher()
-                    new_teacher.from_dict(item)
-                    self.teachers_list.append(new_teacher)
-        except FileNotFoundError:
-            self.teachers_list = []
-
-    def save_teachers_data(self):
-        # Μετατρέπει τα αντικείμενα Teacher σε λεξικά και τα σώζει στο JSON[cite: 7]
-        data_to_save = [teacher.to_dict() for teacher in self.teachers_list]
-        with open(TEACHERS_FILE, "w", encoding="utf-8") as f:
-            json.dump(data_to_save, f, ensure_ascii=False, indent=4)
+        # No more lists or JSON files needed!
+        pass
 
     def next_id(self):
-        # Βρίσκει το επόμενο διαθέσιμο ID[cite: 7]
-        if not self.teachers_list:
-            return 1
-        return max(t.teacher_id for t in self.teachers_list) + 1
+        """Finds the highest teacher_id in the database and adds 1."""
+        last_teacher = teachers_collection.find_one(sort=[("teacher_id", -1)])
+        if last_teacher and "teacher_id" in last_teacher:
+            return last_teacher["teacher_id"] + 1
+        return 1  # Starting ID if the collection is empty
 
-    def create_teacher(self, first_name, last_name):
-        # Δημιουργεί νέο καθηγητή αν δεν υπάρχει ήδη[cite: 7]
-        for t in self.teachers_list:
-            if t.first_name.lower() == first_name.lower() and t.last_name.lower() == last_name.lower():
-                return False
-
-        new_teacher = Teacher(first_name=first_name, last_name=last_name, teacher_id=self.next_id())
-        self.teachers_list.append(new_teacher)
-        self.save_teachers_data()
+    def create_teacher(self, first_name: str, last_name: str):
+        """Creates a new teacher directly in MongoDB."""
+        # 1. Check for duplicates
+        exists = teachers_collection.find_one({
+            "first_name": first_name,
+            "last_name": last_name
+        })
+        
+        if exists:
+            return None
+            
+        # 2. Create the OOP object
+        new_teacher = Teacher(first_name, last_name, self.next_id())
+        
+        # 3. Insert into MongoDB
+        teacher_dict = new_teacher.to_dict()
+        teachers_collection.insert_one(teacher_dict)
+        
         return new_teacher
 
-    def read_teacher(self, teacher_id):
-        for t in self.teachers_list:
-            if t.teacher_id == teacher_id:
-                return t
-        return None
+    def get_all_teachers(self):
+        """Retrieves all teachers from the database."""
+        return list(teachers_collection.find({}, {"_id": 0}))
 
-    def update_teacher(self, teacher_id, first_name=None, last_name=None):
-        # Update an existing teacher.
-        target = self.read_teacher(teacher_id)
-        if not target:
+    def update_teacher(self, teacher_id: int, first_name: str = None, last_name: str = None):
+        """Updates an existing teacher directly in the database."""
+        updates = {}
+        if first_name is not None: updates["first_name"] = first_name
+        if last_name is not None: updates["last_name"] = last_name
+
+        if not updates:
             return None
 
-        if first_name is not None:
-            target.first_name = first_name
-        if last_name is not None:
-            target.last_name = last_name
+        result = teachers_collection.update_one(
+            {"teacher_id": teacher_id}, 
+            {"$set": updates}
+        )
 
-        self.save_teachers_data()
-        return True
+        if result.matched_count == 0:
+            return None
+            
+        return teachers_collection.find_one({"teacher_id": teacher_id}, {"_id": 0})
 
     def delete_teacher(self, teacher_id: int):
-        """Deletes a teacher by ID and returns the deleted ID if successful."""
-        for i, t in enumerate(self.teachers_list):
-            if t.teacher_id == teacher_id:
-                del self.teachers_list[i]
-                self.save_teachers_data()
-                return teacher_id
+        """Deletes a teacher from the database by ID."""
+        result = teachers_collection.delete_one({"teacher_id": teacher_id})
+        
+        if result.deleted_count > 0:
+            return teacher_id
         return None

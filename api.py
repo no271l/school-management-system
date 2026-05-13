@@ -20,15 +20,18 @@ def home():
 # --- GET ENDPOINTS ---
 @app.get("/pupils")
 def get_all_pupils():
-    return [p.to_dict() for p in pupils_manager.pupils_list]
+    # Now the manager handles fetching from the database
+    return pupils_manager.get_all_pupils()
 
 @app.get("/teachers")
 def get_all_teachers():
-    return [t.to_dict() for t in teachers_manager.teachers_list]
+    # Fetch teachers directly from the MongoDB manager
+    return teachers_manager.get_all_teachers()
 
 @app.get("/lessons")
 def get_all_lessons():
-    return [l.to_dict() for l in lessons_manager.lessons_list]
+    # Fetch lessons directly from the MongoDB manager
+    return lessons_manager.get_all_lessons()
 
 # --- POST ENDPOINTS ---
 @app.post("/pupils")
