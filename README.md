@@ -43,7 +43,7 @@ You only need to have **[Docker Desktop](https://www.docker.com/products/docker-
 
 1. **Clone the repository:**
 ```bash
-git clone [https://github.com/your-username/school-management-system.git](https://github.com/your-username/school-management-system.git)
+git clone [https://github.com/no271l/school-management-system.git](https://github.com/no271l/school-management-system.git)
 cd school-management-system
 ```
 
