@@ -1,7 +1,10 @@
+import os
 from pymongo import MongoClient
 
 # 1. Establish a connection to the MongoDB server
-client = MongoClient("mongodb://db:27017/")
+MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017/")
+
+client = MongoClient(MONGO_URL)
 
 # 2. Access the specific database and collection
 db = client["school_database"]
