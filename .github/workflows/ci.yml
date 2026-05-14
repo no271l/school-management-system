@@ -36,4 +36,4 @@ jobs:
     # 4. Run Tests
     - name: Run Tests
       run: |
-        pytest
+        PYTHONPATH=. pytest
